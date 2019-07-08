@@ -20,14 +20,14 @@ How to use DeployNow
 --------------------
 DeployNow expects a couple of parameters to identify attributes related to a CodeDeploy application.
 | Commandline Argument | Shortform Argument | Description |
-| --------------------- |--- | ---------- |
-| - -application-name | -a | Name of the CodeDeploy application |
-| - -deployment-group | -d |Deployment group to which the deployment will be pushed |
-| - -source | -s | Path to source directory |
-| - -bucket | -b | Name of the S3 bucket to store the artifact |
-| - -prefix | -p | Additional S3 prefix to structure the artifact storage |
-| - -region | -r | AWS region code |
-| - -ignore-progress | Not available in short form | Settings this flag will make the application quit after deployment is created |
+| --------------------- |--- | ------------------------------------------------------ |
+| --application-name | -a | Name of the CodeDeploy application |
+| --deployment-group | -d | Deployment group to which the deployment will be pushed |
+| --source | -s | Path to source directory |
+| --bucket | -b | Name of the S3 bucket to store the artifact |
+| --prefix | -p | Additional S3 prefix to structure the artifact storage |
+| --region | -r | AWS region code |
+| --ignore-progress | Not available in short form | Settings this flag will make the application quit after deployment is created |
 
 Running DeployNow to create a revision and deploy it using AWS CodeDeploy.
 ```sh
