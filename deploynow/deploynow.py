@@ -20,7 +20,7 @@ import shutil
 import os
 import time
 
-session = boto3.Session()
+session = boto3.Session(profile_name='696952547163PowerUser')
 
 def get_timestamp_str():
     # To get a string without a . we make the timestamp an integer first.
@@ -54,9 +54,11 @@ def push_to_s3(application_name, source_directory, s3_bucket, s3_prefix, region)
         Path to the uploaded object. 
     """
 
+    print('._ [ RUN ]  Creating revision in S3')
+
     # Validate inputs.
     if not os.path.isdir(source_directory):
-        print_err("[ ERR ]  The source directory {directory} does not exist.".format(
+        print_err("|_ [ ERR ]  The source directory {directory} does not exist.".format(
             directory=source_directory))
         exit(1)
     if not s3_prefix.endswith('/'):
@@ -71,28 +73,28 @@ def push_to_s3(application_name, source_directory, s3_bucket, s3_prefix, region)
         application_name=application_name, timestamp=timestamp)
     archive_path = "/tmp/{archive_name}.zip".format(archive_name=archive_name)
 
-    print_muted('[ RUN ]  Archiving {source} as {destination}'.format(
+    print('|_ [ RUN ]  Archiving {source} as {destination}'.format(
         source=source_directory, destination=archive_path))
     shutil.make_archive(archive_path.replace(
         '.zip', ''), 'zip', source_directory)
-    print_success('[ OK ]  Successfully archived')
+    print_success('|_ [ OK ]   Successfully archived')
 
     # Upload to S3.
     s3_object_path = s3_prefix + archive_name
     try:
         s3 = session.client('s3', region_name=region)
 
-        print_muted('[ RUN ]  Uploading artifact {artifact} to bucket {bucket} as {object_path}'.format(
+        print('|_ [ RUN ]  Uploading artifact {artifact} to bucket {bucket} as {object_path}'.format(
             artifact=archive_path, bucket=s3_bucket, object_path=s3_object_path))
         s3.upload_file(archive_path, s3_bucket, s3_object_path)
-        print_success('[ OK ]  Uploaded to S3 successfully')
+        print_success('|_ [ OK ]   Uploaded to S3 successfully')
 
     except Exception as e:
-        print_err('[ ERR ]  Unable to upload to {bucket} in {region}.\n   {e}'.format(
+        print_err('|_ [ ERR ]  Unable to upload to {bucket} in {region}.\n   {e}'.format(
             bucket=s3_bucket, region=region, e=e))
         s3_object_path = None
 
-    print ('\n')
+    print('|\n|')
 
     return s3_object_path
 
@@ -129,7 +131,7 @@ def deploy(application_name, s3_bucket, s3_artifact_path, region, deployment_gro
     deployment_id = None
 
     try:
-        print_muted('[ RUN ]  Creating deployment for application {application} under deployment group {group} with configuration {config}'.format(
+        print('._ [ RUN ]  Creating deployment for application {application} under deployment group {group} with configuration {config}'.format(
             application=application_name, group=deployment_group, config=deployment_config))
 
         response = codedeploy.create_deployment(
@@ -151,10 +153,10 @@ def deploy(application_name, s3_bucket, s3_artifact_path, region, deployment_gro
         ) else None
 
         if deployment_id is not None:
-            print_success('[ OK ]  Deploying {application} to {group} using config {config} under deployment id {id}'.format(
+            print_success('|_ [ OK ]   Deploying {application} to {group} using config {config} under deployment id {id}'.format(
                 application=application_name, group=deployment_group, config=deployment_config, id=deployment_id))
         else:
-            raise Exception('Received unexpected response from CodeDeploy\n   {response}'.format(
+            raise Exception('|_ [ ERR ] Received unexpected response from CodeDeploy\n   {response}'.format(
                 response=response))
 
     except Exception as e:
@@ -162,25 +164,25 @@ def deploy(application_name, s3_bucket, s3_artifact_path, region, deployment_gro
         deployment_id = None
 
         if 'ApplicationDoesNotExistException' in e:
-            print_err('[ ERR ]  Application {application} does not exist in CodeDeploy'.format(
+            print_err('|_ [ ERR ]  Application {application} does not exist in CodeDeploy'.format(
                 application=application_name))
         elif 'DeploymentGroupDoesNotExistException' in e:
-            print_err('[ ERR ]  Deployment group {group} does not exist in application {application}'.format(
+            print_err('|_ [ ERR ]  Deployment group {group} does not exist in application {application}'.format(
                 group=deployment_group, application=application_name))
         elif 'DeploymentConfigDoesNotExistException' in e:
-            print_err('[ ERR ]  Deploymeny configuration {config} does not exist'.format(
+            print_err('|_ [ ERR ]  Deploymeny configuration {config} does not exist'.format(
                 config=deployment_config))
         elif 'DeploymentLimitExceededException' in e:
             # Return the deployment id of the ongoing deployment.
             # Ex: d-QR8AO4P4B
             deployment_id = e[e.index("'d-"): len(e)
                               ].replace("'", '') if "'d-" in e else None
-            print_warning('!  Deployment {id} is already in progress'.format(
+            print_warning('|_ [ WARN ] Deployment {id} is already in progress'.format(
                 id=deployment_id))
         else:
-            print_err('[ ERR ]  Unknown error occured.\n   {e}'.format(e=e))
+            print_err('|_ [ ERR ] Unknown error occured.\n   {e}'.format(e=e))
 
-    print ('\n')
+    print('|\n|')
 
     return deployment_id
 
@@ -200,6 +202,8 @@ def deployment_progress(deployment_id, region):
         --> Overview: <Number of deployments under each criteria listed above>
 
         NOTE: If the status is not one of the above, the Overview wil contain the error.
+
+        NOTE: Since this method will be called reportadly, do not call unnecessary print statements.
     """
 
     codedeploy = session.client('codedeploy', region_name=region)
@@ -215,15 +219,15 @@ def deployment_progress(deployment_id, region):
             status = {
                 'Status': overall_deployment_status, 'Overview': deployment_overview}
         else:
-            raise Exception('[ ERR ]  Unable to retrieve deployment status.\n   {response}'.format(
+            raise Exception('|_ [ ERR ]  Unable to retrieve deployment status.\n   {response}'.format(
                 response=response))
 
     except Exception as e:
         e = str(e)
         if 'InvalidDeploymentIdException' in e:
-            print_err('[ ERR ]  Deploymeny id {id} can not be found in {region}'.format(
+            print_err('|_ [ ERR ]  Deploymeny id {id} can not be found in {region}'.format(
                 id=deployment_id, region=region))
-            status['Overview'] = '[ ERR ]  Deploymeny id {id} can not be found in {region}'.format(
+            status['Overview'] = '|_ [ ERR ]  Deploymeny id {id} can not be found in {region}'.format(
                 id=deployment_id, region=region)
         else:
             print_err('[ ERR ]  Unknown error occured.\n   {e}'.format(e=e))
@@ -245,15 +249,17 @@ def monitor_deployment(deployment_id, region):
         AWS region to which the CodeDeploy application belongs to.
     """
 
+    print('._ [ RUN ]  Monitoring deployment..')
+
     progress = deployment_progress(deployment_id, region)
     status = progress['Status']
 
     if status == 'Error':
-        print_err('[ ERR ]  Unable to monitor deployment {id}.\n   {reason}'.format(
+        print_err('|_ [ ERR ]  Unable to monitor deployment {id}.\n   {reason}'.format(
             id=deployment_id, reason=progress['Overview']))
         exit(1)
 
-    print_muted('[ RUN ]  Deployment {id} is in progress...'.format(id=deployment_id))
+    print('|_ [ RUN ]  Deployment {id} is in progress...'.format(id=deployment_id))
 
     while status != 'Error':
         progress = deployment_progress(deployment_id, region)
@@ -263,7 +269,7 @@ def monitor_deployment(deployment_id, region):
             pass
 
         elif status == 'Succeeded':
-            print_success('[ OK ]  Deployment {id} completed successfully'.format(
+            print_success('|_ [ OK ]   Deployment {id} completed successfully'.format(
                 id=deployment_id))
 
             # Print summary/overview.
@@ -275,7 +281,7 @@ def monitor_deployment(deployment_id, region):
             exit(0)
 
         elif status in ('Failed', 'Stopped'):
-            print_err('[ ERR ]  Deployment {id} failed'.format(id=deployment_id))
+            print_err('|_ [ ERR ]  Deployment {id} failed'.format(id=deployment_id))
 
             # Print summary/overview.
             overview = progress['Overview']
@@ -285,7 +291,7 @@ def monitor_deployment(deployment_id, region):
             exit(1)
 
         else:
-            print_err('[ ERR ]  Unknown error occured\n   {overview}'.format(
+            print_err('|_ [ ERR ]  Unknown error occured\n   {overview}'.format(
                 overview=overview))
 
 
@@ -355,5 +361,3 @@ def main():
             monitor_deployment(deployment_id, region)
         else:
             print_warning ('[ WARN ]  --ignore-progress flag is set, therefore deployment progress will not be monitored.')
-
-
