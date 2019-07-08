@@ -19,6 +19,7 @@ $ pip3 install git+https://github.com/AnushkaYohan/code-deploy-now
 How to use DeployNow
 --------------------
 DeployNow expects a couple of parameters to identify attributes related to a CodeDeploy application.
+
 | Commandline Argument | Shortform Argument | Description |
 | --------------------- |--- | ------------------------------------------------------ |
 | --application-name | -a | Name of the CodeDeploy application |
@@ -33,3 +34,4 @@ Running DeployNow to create a revision and deploy it using AWS CodeDeploy.
 ```sh
 $ deploynow -a 'sample-app-codedeploy' -s '/etc/usr/sampleapp' -b 'packages-bucket' -p 'path/to/package/' 
             -d 'sample-app-deployment-group' -r 'eu-west-1'
+```
