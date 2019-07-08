@@ -1,4 +1,4 @@
-name = 'deploynow'
+#!/usr/bin/env python
 
 """
 ______           _             _   _               
