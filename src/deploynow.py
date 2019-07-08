@@ -20,7 +20,7 @@ import shutil
 import os
 import time
 
-session = boto3.Session(profile_name='696952547163PowerUser')
+session = boto3.Session()
 
 def get_timestamp_str():
     # To get a string without a . we make the timestamp an integer first.
