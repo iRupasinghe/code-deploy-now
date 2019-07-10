@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 with open('README.md', 'r') as in_:
     long_description = in_.read()
 
-setuptools.setup(
+setup(
     name='deploynow',
     author='Anushka Yohan',
     author_email='anushka.yohan@pearson.com',
@@ -20,6 +20,6 @@ setuptools.setup(
     install_requires=['boto3'],
     packages=find_packages(),
     include_package_data=True,
-    version="1.6.0",
+    version="1.7.0",
     scripts=['deploynow']
 )
