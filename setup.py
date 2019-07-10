@@ -17,10 +17,6 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/AnushkaYohan/code-deploy-now',
-    classifiers=["Programming Language :: Python :: 3",
-                 "License :: OSI Approved :: MIT License",
-                 "Operating System :: OS Independent"
-    ],
     install_requires=['boto3'],
     packages=find_packages(),
     include_package_data=True,
