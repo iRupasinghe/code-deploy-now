@@ -20,6 +20,6 @@ setup(
     install_requires=['boto3'],
     packages=find_packages(),
     include_package_data=True,
-    version="1.7.0",
+    version="1.8.0",
     scripts=['deploynow']
 )
