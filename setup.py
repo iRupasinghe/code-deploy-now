@@ -14,12 +14,12 @@ setuptools.setup(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
     ],
-    long_description=long_description,
+    long_description= 'long_description',
     long_description_content_type='text/markdown',
     url='https://github.com/AnushkaYohan/code-deploy-now',
     install_requires=['boto3'],
     packages=find_packages(),
     include_package_data=True,
-    version="1.5.0",
+    version="1.6.0",
     scripts=['deploynow']
 )
